@@ -32,7 +32,7 @@ int main()
 				cout << mem[idx];
 				break;
 			case ',':
-				cin >> mem[idx];
+				mem[idx] = cin.get();
 				break;
 			case '[':
 				if(mem[idx]!=0)
