@@ -1,69 +1,85 @@
 #include <iostream>
+#include <set>
 #include <stack>
+#define MEM_MAX_SIZE 30000
+#define CODE_MAX_SIZE 100000
 using namespace std;
 
-char mem[30000];
-int idx = 0;
-stack<unsigned int> loopout; 
-int steps;
+typedef unsigned int uint;
+typedef unsigned char uchar;
+
+string input;
+
+uchar memory[MEM_MAX_SIZE];
+uint bracketPairs[CODE_MAX_SIZE];
+uint pointer = 0;
+
+void preExecute(string code)
+{
+	stack<uint> lastOpen;
+	uint codeLength = code.size();
+
+	for(uint i = 0;i < codeLength;i ++)
+	{
+		if(code[i] == '[')
+		{
+			lastOpen.push(i);
+		}
+		else if(code[i] == ']')
+		{
+			bracketPairs[i] = lastOpen.top();
+			bracketPairs[lastOpen.top()] = i;
+			lastOpen.pop();
+		}
+	}
+}
+
+void execute(string code)
+{
+	uint codeLength = code.size();
+	for(uint index  = 0;index < codeLength;++ index)
+	{
+		switch(code[index])
+		{
+			case '+':
+				memory[pointer] ++;
+				break;
+			case '-':
+				memory[pointer] --;
+				break;
+			case '>':
+				pointer ++;
+				break;
+			case '<':
+				pointer --;
+				break;
+			case '[':
+				if(memory[pointer] == 0)
+					index = bracketPairs[index];
+				break;
+			case ']':
+				index = bracketPairs[index] - 1;
+				break;
+			case '.':
+				cout << memory[pointer];
+				break;
+			case ',':
+				memory[pointer] = cin.get();
+				break;
+
+		}
+		//cout << code[index] << " " << index << '\n';
+	}
+}
 
 int main()
 {
 	string input;
 	cin >> input;
-
-	for(int curr = 0;curr < input.size();curr ++)
-	{
-		switch(input[curr])
-		{
-			case '+':
-				mem[idx] ++;
-				break;
-			case '-':
-				mem[idx] --;
-				break;
-			case '>':
-				idx ++;
-				break;
-			case '<':
-				idx --;
-				break;
-			case '.':
-				cout << mem[idx];
-				break;
-			case ',':
-				cin >> mem[idx];
-				break;
-			case '[':
-				if(mem[idx]!=0)
-				{
-					//Continue looping
-					loopout.push(curr);
-				}
-				else
-				{
-					int open = 1;
-					int closed = 0;
-					for(int i = curr+1;i < input.size() || open!=closed;i ++)
-					{
-						if(input[i] == '[')
-							open ++;
-						if(input[i] == ']')
-							closed ++;
-						if(open == closed)
-						{
-							curr = i;
-							break;
-						}
-					}
-				}
-				break;
-			case ']':
-				curr = loopout.top() - 1;
-				loopout.pop();
-				break;
-		}
-		//steps ++;
-	}
-	//cout << "Finished! " << steps << " steps." << endl;
+		
+	preExecute(input);
+	execute(input);
+	
+	cout << endl;
+	return 0;
 }
